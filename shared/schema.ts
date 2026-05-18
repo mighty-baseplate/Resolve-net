@@ -2,6 +2,13 @@ import { pgTable, text, serial, integer, boolean, jsonb, timestamp } from "drizz
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
 
+export const locationSchema = z.object({
+  lat: z.number(),
+  lng: z.number(),
+});
+
+export type Location = z.infer<typeof locationSchema>;
+
 export const users = pgTable("users", {
   id: serial("id").primaryKey(),
   username: text("username").notNull().unique(),
@@ -36,13 +43,11 @@ export const insertIssueSchema = createInsertSchema(issues).pick({
   title: z.string().min(1, "Title is required"),
   description: z.string().min(1, "Description is required"),
   imageUrl: z.string().min(1, "Image is required"),
-  location: z.object({
-    lat: z.number(),
-    lng: z.number(),
-  }).refine((data) => data.lat !== 0 && data.lng !== 0, "Location is required"),
+  location: locationSchema.refine((data) => data.lat !== 0 && data.lng !== 0, "Location is required"),
 });
 
 export type InsertUser = z.infer<typeof insertUserSchema>;
 export type User = typeof users.$inferSelect;
-export type Issue = typeof issues.$inferSelect;
+export type IssueRow = typeof issues.$inferSelect;
+export type Issue = Omit<IssueRow, 'location'> & { location: Location };
 export type InsertIssue = z.infer<typeof insertIssueSchema>;

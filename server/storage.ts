@@ -1,4 +1,4 @@
-import { User, InsertUser, Issue, InsertIssue } from "@shared/schema";
+import { User, InsertUser, Issue, InsertIssue, locationSchema } from "@shared/schema";
 import session from "express-session";
 import connectPg from "connect-pg-simple";
 import { db } from "./db";
@@ -7,6 +7,13 @@ import { users, issues } from "@shared/schema";
 import { eq } from "drizzle-orm";
 
 const PostgresSessionStore = connectPg(session);
+
+function castIssueLocation(issue: any): Issue {
+  return {
+    ...issue,
+    location: locationSchema.parse(issue.location),
+  };
+}
 
 export interface IStorage {
   getUser(id: number): Promise<User | undefined>;
@@ -56,16 +63,17 @@ export class DatabaseStorage implements IStorage {
         votes: 0,
       })
       .returning();
-    return newIssue;
+    return castIssueLocation(newIssue);
   }
 
   async getIssues(): Promise<Issue[]> {
-    return await db.select().from(issues);
+    const allIssues = await db.select().from(issues);
+    return allIssues.map(castIssueLocation);
   }
 
   async getIssueById(id: number): Promise<Issue | undefined> {
     const [issue] = await db.select().from(issues).where(eq(issues.id, id));
-    return issue;
+    return issue ? castIssueLocation(issue) : undefined;
   }
 
   async updateIssueStatus(id: number, status: string): Promise<Issue | undefined> {
@@ -74,7 +82,7 @@ export class DatabaseStorage implements IStorage {
       .set({ status })
       .where(eq(issues.id, id))
       .returning();
-    return issue;
+    return issue ? castIssueLocation(issue) : undefined;
   }
 
   async updateIssueVotes(id: number, increment: boolean): Promise<Issue | undefined> {
@@ -86,7 +94,7 @@ export class DatabaseStorage implements IStorage {
       .set({ votes: increment ? issue.votes + 1 : issue.votes - 1 })
       .where(eq(issues.id, id))
       .returning();
-    return updatedIssue;
+    return updatedIssue ? castIssueLocation(updatedIssue) : undefined;
   }
 }
 
