@@ -51,7 +51,7 @@ A full-stack web application for community issue reporting and resolution. Users
 
 1. Clone the repository
 ```bash
-https://github.com/mighty-baseplate/Resolve-net.git
+git clone https://github.com/mighty-baseplate/Resolve-net.git
 cd resolve-net
 ```
 
