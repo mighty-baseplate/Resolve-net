@@ -46,7 +46,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       return res.status(400).json({ error: "No file uploaded" });
     }
     const fileUrl = `/uploads/${req.file.filename}`;
-    res.json({ url: fileUrl });
+    return res.json({ url: fileUrl });
   });
 
   // Serve uploaded files
@@ -56,7 +56,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.get("/api/issues", async (req, res) => {
     if (!req.isAuthenticated()) return res.sendStatus(401);
     const issues = await storage.getIssues();
-    res.json(issues);
+    return res.json(issues);
   });
 
   app.post("/api/issues", async (req, res) => {
@@ -68,12 +68,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
         ...issueData,
         userId: req.user.id,
       });
-      res.status(201).json(issue);
+      return res.status(201).json(issue);
     } catch (err) {
       if (err instanceof z.ZodError) {
-        res.status(400).json(err.errors);
+        return res.status(400).json(err.errors);
       } else {
-        res.status(500).send("Failed to create issue");
+        return res.status(500).send("Failed to create issue");
       }
     }
   });
@@ -89,7 +89,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
     const issue = await storage.updateIssueStatus(parseInt(req.params.id), status);
     if (!issue) return res.status(404).send("Issue not found");
-    res.json(issue);
+    return res.json(issue);
   });
 
   app.post("/api/issues/:id/vote", async (req, res) => {
@@ -98,7 +98,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     const increment = req.body.increment === true;
     const issue = await storage.updateIssueVotes(parseInt(req.params.id), increment);
     if (!issue) return res.status(404).send("Issue not found");
-    res.json(issue);
+    return res.json(issue);
   });
 
   const httpServer = createServer(app);
