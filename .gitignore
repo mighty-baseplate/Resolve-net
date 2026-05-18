@@ -1,0 +1,52 @@
+# Dependencies
+node_modules/
+
+# Environment
+.env
+.env.local
+.env.*.local
+
+# Build output
+dist/
+build/
+.next/
+out/
+.vite/
+
+# IDE and Editor
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+.project
+.classpath
+*.log
+
+# OS
+Thumbs.db
+.DS_Store
+*.pid
+
+# Testing
+coverage/
+.nyc_output/
+
+# Uploads
+uploads/*
+!uploads/.gitkeep
+
+# Database
+*.db
+*.sqlite
+*.sqlite3
+
+# Cache
+.eslintcache
+.turbo/
+
+# Temporary files
+tmp/
+temp/
+*.tmp
